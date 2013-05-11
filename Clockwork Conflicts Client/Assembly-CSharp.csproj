@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>10.0.20506</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{479666EA-B0FD-0B33-4B6F-C85E6DD500EA}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-CSharp</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_1_2;UNITY_4_1;ENABLE_PROFILER;UNITY_EDITOR</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="UnityEngine">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\ControllerObject.cs" />
+     <Compile Include="Assets\Controls\Box.cs" />
+     <Compile Include="Assets\Controls\Button.cs" />
+     <Compile Include="Assets\Controls\Control.cs" />
+     <Compile Include="Assets\Controls\EventButler.cs" />
+     <Compile Include="Assets\Controls\Label.cs" />
+     <Compile Include="Assets\Controls\Point.cs" />
+     <Compile Include="Assets\Controls\ScrollView.cs" />
+     <Compile Include="Assets\Controls\Size.cs" />
+     <Compile Include="Assets\Controls\TextArea.cs" />
+     <Compile Include="Assets\Controls\TextField.cs" />
+     <Compile Include="Assets\Controls\ToolBar.cs" />
+     <Compile Include="Assets\Controls\Window.cs" />
+     <Compile Include="Assets\Domain\Account.cs" />
+     <Compile Include="Assets\Domain\ChannelUser.cs" />
+     <Compile Include="Assets\Domain\ChatChannel.cs" />
+     <Compile Include="Assets\Domain\ChatMessage.cs" />
+     <Compile Include="Assets\Domain\DomainController.cs" />
+     <Compile Include="Assets\Domain\Friend.cs" />
+     <Compile Include="Assets\Domain\Guild.cs" />
+     <Compile Include="Assets\Domain\GuildMember.cs" />
+     <Compile Include="Assets\Domain\ListenerHandler.cs" />
+     <Compile Include="Assets\Domain\LobbyMessage.cs" />
+     <Compile Include="Assets\Domain\Message.cs" />
+     <Compile Include="Assets\Domain\SenderHandler.cs" />
+     <Compile Include="Assets\Domain\Server.cs" />
+     <Compile Include="Assets\Gui\AddUser.cs" />
+     <Compile Include="Assets\Gui\ChannelWindow.cs" />
+     <Compile Include="Assets\Gui\ChatWindow.cs" />
+     <Compile Include="Assets\Gui\CreateChannel.cs" />
+     <Compile Include="Assets\Gui\FriendsWindow.cs" />
+     <Compile Include="Assets\Gui\GuiController.cs" />
+     <Compile Include="Assets\Gui\GuildWindow.cs" />
+     <Compile Include="Assets\Gui\LocalizedStrings.cs" />
+     <Compile Include="Assets\Gui\LoggedInGui.cs" />
+     <Compile Include="Assets\Gui\LoginGui.cs" />
+     <Compile Include="Assets\Network\ClientLobbySender.cs" />
+     <Compile Include="Assets\Network\ClientState.cs" />
+     <Compile Include="Assets\Network\LoginClient.cs" />
+     <Compile Include="Assets\Network\NetworkController.cs" />
+     <Compile Include="Assets\Network\ServerState.cs" />
+     <Compile Include="Assets\Persistence\PersistenceController.cs" />
+     <Compile Include="Assets\Persistence\XMLHandler.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>
