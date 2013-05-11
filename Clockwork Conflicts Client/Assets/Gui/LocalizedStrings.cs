@@ -12,21 +12,25 @@
         public static string str_createChannel { get; set; }
         public static string str_create { get; set; }
         public static string str_console { get; set; }
+        public static string str_yes { get; set; }
+        public static string str_no { get; set; }
+        public static string str_partyRequest { get; set; }
 
-        public static void SetLanguage(string language = "en")
+        public static bool SetLanguage(string language = "en")
         {
-            switch (language)
+            switch (language.ToLower())
             {
                 case "en": 
                     InitEnglish();
-                    break;                   
+                    break;                 
                 case "nl":
                     InitDutch();
                     break;
                 default:
                     InitEnglish();
-                    break;
+                    return false;
             }
+            return true;
         }
 
         private static void InitEnglish()
@@ -41,6 +45,9 @@
             str_createChannel = "Create Channel";
             str_create = "Create";
             str_console = "Console";
+            str_yes = "Yes";
+            str_no = "No";
+            str_partyRequest = "Party Request";
         }
 
         private static void InitDutch()
@@ -55,6 +62,9 @@
             str_createChannel = "Creëer Kanaal";
             str_create = "Creëer";
             str_console = "Console";
+            str_yes = "Ja";
+            str_no = "Nee";
+            str_partyRequest = "Groepsverzoek";
         }
     }
 }

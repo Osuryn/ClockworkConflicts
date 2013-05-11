@@ -20,9 +20,12 @@ namespace MMTD_Client.Controls
 
         public override void Render()
         {
-            GUI.skin.button.fontSize = (int)Mathf.Ceil(fontSize * guiController.scale.y);           
-            GUI.SetNextControlName(name);
-            selectedIndex = GUI.Toolbar(guiController.ScaledRect(this.GetRect(), parentSurface), selectedIndex, items.ToArray());         
+            if (visible)
+            {
+                GUI.skin.button.fontSize = (int)Mathf.Ceil(fontSize * guiController.scale.y);
+                GUI.SetNextControlName(name);
+                selectedIndex = GUI.Toolbar(guiController.ScaledRect(this.GetRect(), parentSurface), selectedIndex, items.ToArray());
+            }
         }
     }
 }

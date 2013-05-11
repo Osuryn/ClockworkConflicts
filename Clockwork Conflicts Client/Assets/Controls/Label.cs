@@ -14,13 +14,16 @@ namespace MMTD_Client.Controls
 
         public override void Render()
         {
-            GUIStyle style = new GUIStyle();
-            var textSize = GUI.skin.label.CalcSize(new GUIContent(text));
-            style.fontSize = (int)Mathf.Ceil(fontSize * guiController.scale.y);
-            style.normal.textColor = color;
-            Rect rect = guiController.ScaledRect(new Rect(location.x, location.y, textSize.x, textSize.y), parentSurface);
-            GUI.SetNextControlName(name);
-            GUI.Label(rect, text, style);          
+            if (visible)
+            {
+                GUIStyle style = new GUIStyle();
+                var textSize = GUI.skin.label.CalcSize(new GUIContent(text));
+                style.fontSize = (int)Mathf.Ceil(fontSize * guiController.scale.y);
+                style.normal.textColor = color;
+                Rect rect = guiController.ScaledRect(new Rect(location.x, location.y, textSize.x, textSize.y), parentSurface);
+                GUI.SetNextControlName(name);
+                GUI.Label(rect, text, style);
+            }
         }
     }
 }

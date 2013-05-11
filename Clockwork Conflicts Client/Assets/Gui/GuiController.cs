@@ -1,6 +1,7 @@
 using UnityEngine;
-using System.Collections;
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using MMTD_Client.Controls;
@@ -20,6 +21,7 @@ namespace MMTD_Client.Gui
         public Vector2 screen { get; set; }
         public Vector2 scale { get; set; }
         public Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
+        public bool fpsCounter { get; set; }
 
         private static GuiController guiController;
         private PersistenceController persistenceController;
@@ -41,8 +43,12 @@ namespace MMTD_Client.Gui
 
         public int activeChannel { get; set; }
 
+        private static ControllerObjectScript controllerObject;
+
+
         private GuiController()
         {
+            fpsCounter = false;
             debugQueue = new Queue<string>();
             receiveQueue = new Queue<string>();
             LocalizedStrings.SetLanguage("en");
@@ -59,11 +65,16 @@ namespace MMTD_Client.Gui
             activeChannel = 0;
         }
 
+        public void SetControllerObject(ControllerObjectScript controller)
+        {
+            controllerObject = controller;
+        }
+
         public static GuiController getInstance()
         {
             if (guiController == null)
             {
-                guiController = new GuiController();
+                guiController = new GuiController();             
             }
             return guiController;
         }
@@ -212,6 +223,7 @@ namespace MMTD_Client.Gui
             screen = new Vector2(Screen.width, Screen.height);
             screenRect = new Rect(0, 0, Screen.width, Screen.height);
             scale = new Vector2(screen.x / optimalWidth, screen.y / optimalHeight);
+            //Debug.Log(controllerObject.ToString());
         }
 
         public string GetColoredText(string message, string color)
@@ -222,6 +234,16 @@ namespace MMTD_Client.Gui
         public void AddToChat(string text)
         {
             domainController.GetChannelById(activeChannel).reveivedText.Enqueue( "<color=#FFFF00FF>" + text + "</color>");
+        }
+
+        public void ShowQuestionBox(string name, string text, Action yesAction, Action NoAction)
+        {
+            controllerObject.ShowMessageBox(name, text, yesAction, NoAction);
+        }
+
+        public void UnityLog(string text)
+        {
+            Debug.Log(text);
         }
     }
 }

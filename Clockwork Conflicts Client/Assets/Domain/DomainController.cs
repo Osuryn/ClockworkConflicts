@@ -56,6 +56,8 @@ namespace MMTD_Client.Domain
         public bool loggedIn { get; set; }
 		private bool ClientOn = true;
 
+        public int invitedParty { get; set; }
+
         private DomainController()
         {
             loggedIn = false;
@@ -243,6 +245,7 @@ namespace MMTD_Client.Domain
                     break;
                 //get party invite
                 case 41:
+                    GetPartyInvite(data);
                     break;
                 default:
                     //#if DEBUG
@@ -301,7 +304,7 @@ namespace MMTD_Client.Domain
             else
             {
 #if DEBUG
-                guiController.ShowMessageBox("Something went wrong with asigning the MessageQueueu for: " + sender);
+                guiController.ShowMessageBox("Something went wrong with asigning the MessageQueue for: " + sender);
 #endif
             }
 
@@ -886,6 +889,27 @@ namespace MMTD_Client.Domain
 
         #endregion
 
+        #region Party
+
+        private void GetPartyInvite(string data)
+        {
+            int index = -1;
+            index = data.LastIndexOf("|");
+            int partyId = Convert.ToInt32(data.Substring(0, index));
+            string inviter = data.Substring(index + 1);
+
+            invitedParty = partyId;
+
+            guiController.ShowQuestionBox(LocalizedStrings.str_partyRequest , "Player " + inviter + " has invited you to join his party.", AcceptPartyInvite, null);
+        }
+
+        public void AcceptPartyInvite()
+        {
+            AddLobbyMessageToQueue(42, invitedParty.ToString());
+        }
+
+        #endregion
+
         #region Extra Functions
 
         public void setMode(int mode, string ip = null)
@@ -1222,7 +1246,7 @@ namespace MMTD_Client.Domain
            switch (testParm.ToLower())
             {
                case "help":
-                    guiController.AddToChat("commands: join, createchannel, invite");
+                    guiController.AddToChat("commands: join, createchannel, invite, fps, language");
                     break;
                 case "join":
                     if (parameters.Count >= 1)
@@ -1273,11 +1297,53 @@ namespace MMTD_Client.Domain
                         guiController.AddToChat("Invalid invite command, usage: /invite [playername]");
                     }
                     break;
+               case "fps":
+                    if (guiController.fpsCounter)
+                    {
+                        guiController.fpsCounter = false;
+                        guiController.AddToChat("FPS counter disabled");
+                    }
+                    else
+                    {
+                        guiController.fpsCounter = true;
+                        guiController.AddToChat("FPS counter enabled");
+                    }
+                    break;
+               case "language":
+                    if (parameters.Count == 1)
+                    {
+                        string language = parameters.Dequeue();
+                        if (LocalizedStrings.SetLanguage(language))
+                        {
+                            guiController.AddToChat("Switching language to " + language.ToUpper());
+                        }
+                        else
+                        {
+                            guiController.AddToChat("No language " + language.ToUpper() + " found defaulting to English");
+                        }
+                    }
+                    else
+                    {
+                        guiController.AddToChat("Invalid language command, usage: /language [abriviated language (EN, NL)]");
+                    }
+                    break;
                 default:
                     guiController.AddToChat("/" + testParm + " is not a recognized command.");
                     break;
             }
+
+
             //guiController.SetDebugText("Command: " + input);
+        }
+
+        private void yes()
+        {
+            guiController.SetDebugText("JA");
+        }
+
+        private void no()
+        {
+            guiController.SetDebugText("NEE");
         }
 
         #endregion

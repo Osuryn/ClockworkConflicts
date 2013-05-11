@@ -18,3 +18,14 @@ G:\Development\Git Repositories\MMTD\MMTD-Launcher\obj\Debug\Assembly-CSharp.pdb
 \\xenon\homes$\243601\Documents\MMTD-Launcher\Temp\bin\Debug\nunit.framework.dll
 \\xenon\homes$\243601\Documents\MMTD-Launcher\Temp\bin\Debug\ICSharpCode.NRefactory.dll
 \\xenon\homes$\243601\Documents\MMTD-Launcher\obj\Debug\Assembly-CSharp.pdb
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\UnityEditor.dll
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\UnityEngine.dll
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\Mono.Cecil.dll
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\nunit.framework.dll
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\ICSharpCode.NRefactory.dll
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\obj\Debug\Assembly-CSharp-vs.csprojResolveAssemblyReference.cache
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\obj\Debug\Assembly-CSharp.dll
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-CSharp.dll
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-CSharp.pdb
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-UnityScript-firstpass.dll
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\obj\Debug\Assembly-CSharp.pdb
