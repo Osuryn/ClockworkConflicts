@@ -44,6 +44,8 @@ namespace MMTD_Client.Domain
         public List<Friend> pendingList { get; set; }
         private List<int> onlineIdList { get; set; }
 
+        public List<Account> FullyKnownAccounts { get; set; }
+
         public List<string> chatHistory = new List<string>();
         public int chatHistoryPosition;
 
@@ -57,6 +59,7 @@ namespace MMTD_Client.Domain
 		private bool ClientOn = true;
 
         public int invitedParty { get; set; }
+
 
         private DomainController()
         {
@@ -92,6 +95,20 @@ namespace MMTD_Client.Domain
 
         #endregion
 
+        #region Accounts
+
+        public Account getAccountByID(int id)
+        {
+            foreach (Account account in FullyKnownAccounts)
+            {
+                if (account.accountId == id)
+                    return account;
+            }
+            return null;
+        }
+
+        #endregion
+
         #region Messages
 
         #region Incomming Message
@@ -99,7 +116,7 @@ namespace MMTD_Client.Domain
         private void HandleIncomingChatMessage(string output)
         {
 
-            guiController.SetDebugText(output);
+            guiController.SetDebugText("RECEIVED CHAT: " + output);
 
             string backup;
             string hexColour = "#FFFFFF";
@@ -163,7 +180,7 @@ namespace MMTD_Client.Domain
             index = data.IndexOf("]");
             data = data.Substring(index + 1);
 
-            guiController.SetDebugText(data);
+            guiController.SetDebugText("RECEIVED LOBBY: " + output);
 
             switch (type)
             {
@@ -701,14 +718,21 @@ namespace MMTD_Client.Domain
             int index = -1;
             index = data.IndexOf("|");
             int channelId = Convert.ToInt32(data.Substring(0, index));
-            data = data.Substring(index + 1);
-            index = -1;
-            index = data.IndexOf("|");
-            string channelName = data.Substring(0, index);
-            int ownerId = Convert.ToInt32(data.Substring(index + 1));
-            List<int> userList = new List<int>();
-            userList.Add(ownerId);
-            channelList.Add(new ChatChannel(true, channelId, channelName, ownerId, userList));
+            if (channelId == -1)
+            {
+                guiController.AddToChat("Channel " + data.Substring(index+1) + " already exists.");
+            }
+            else
+            {
+                data = data.Substring(index + 1);
+                index = -1;
+                index = data.IndexOf("|");
+                string channelName = data.Substring(0, index);
+                int ownerId = Convert.ToInt32(data.Substring(index + 1));
+                List<int> userList = new List<int>();
+                userList.Add(ownerId);
+                channelList.Add(new ChatChannel(true, channelId, channelName, ownerId, userList));
+            }
         }
 
         private void AddChannelMessage(string output, string color)
@@ -736,6 +760,8 @@ namespace MMTD_Client.Domain
         {
             int index = -1;
             string backup = data;
+
+            guiController.UnityLog("joined channel with data: " + data);
 
             index = backup.LastIndexOf("|");
             int id = Convert.ToInt32(backup.Substring(0, index));
@@ -1331,21 +1357,8 @@ namespace MMTD_Client.Domain
                     guiController.AddToChat("/" + testParm + " is not a recognized command.");
                     break;
             }
-
-
             //guiController.SetDebugText("Command: " + input);
         }
-
-        private void yes()
-        {
-            guiController.SetDebugText("JA");
-        }
-
-        private void no()
-        {
-            guiController.SetDebugText("NEE");
-        }
-
         #endregion
 
         #region Threads

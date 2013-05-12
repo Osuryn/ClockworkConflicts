@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 
 using MMTD_Client.Network;
+using MMTD_Client.Gui;
 
 namespace MMTD_Client.Domain
 {
@@ -62,6 +63,7 @@ namespace MMTD_Client.Domain
 
             socket.BeginSend(state.DataToSend, 0, state.DataToSend.Length,
               SocketFlags.None, new AsyncCallback(ClientSendCallback), state);
+            GuiController.getInstance().SetDebugText("SENT "  + senderName + ": " + DomainController.getInstance().PrepareMessageToSend(message));
             Thread.Sleep(50);
         }
 

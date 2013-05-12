@@ -69,6 +69,7 @@
      <Compile Include="Assets\Domain\ListenerHandler.cs" />
      <Compile Include="Assets\Domain\LobbyMessage.cs" />
      <Compile Include="Assets\Domain\Message.cs" />
+     <Compile Include="Assets\Domain\Party.cs" />
      <Compile Include="Assets\Domain\SenderHandler.cs" />
      <Compile Include="Assets\Domain\Server.cs" />
      <Compile Include="Assets\Gui\AddUser.cs" />

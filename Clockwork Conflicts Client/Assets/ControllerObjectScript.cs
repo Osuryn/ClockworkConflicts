@@ -528,7 +528,7 @@ public class ControllerObjectScript : MonoBehaviour
             tlb_Channels.items.Add(LocalizedStrings.str_createChannel);
             if (tlb_Channels.selectedIndex != tlb_Channels.items.Count - 1)
             {
-                guiController.activeChannel = tlb_Channels.selectedIndex;
+                guiController.activeChannel = domainController.GetChannelByName(tlb_Channels.items[tlb_Channels.selectedIndex]).channelId;
             }
             else
             {
@@ -614,17 +614,14 @@ public class ControllerObjectScript : MonoBehaviour
 
     private void Login_button_Pressed(object Sender, EventArgs e)
     {
-        if (btn_Login.EventCompleted("Send"))
+        if (txf_Username.text != "" && txf_Password.text != "")
         {
-            if (txf_Username.text != "" && txf_Password.text != "")
-            {
-                guiController.SendLogin(txf_Username.text, txf_Password.text);
-                txf_Password.text = "";
-            }
-            else
-            {
-                guiController.SetDebugText("Please fill in both username and password, incomplete credentials");
-            }
+            guiController.SendLogin(txf_Username.text, txf_Password.text);
+            txf_Password.text = "";
+        }
+        else
+        {
+            guiController.SetDebugText("Please fill in both username and password, incomplete credentials");
         }
     }
 
@@ -634,7 +631,7 @@ public class ControllerObjectScript : MonoBehaviour
         {
             if (txf_Send.text[0] != '/')
             {
-                domainController.AddChatMessageToQueue(1, guiController.activeChannel, txf_Send.text);
+                domainController.AddChatMessageToQueue(3, guiController.activeChannel, txf_Send.text);
             }
             else
             {

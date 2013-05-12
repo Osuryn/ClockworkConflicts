@@ -25,8 +25,6 @@ namespace MMTD_Client.Controls
         {
             if (visible)
             {
-                //Vector2 start = scrollPosition;
-                //totalArea = new Rect();
                 float tempWidth = 0;
                 float tempHeight = 0;
                 float lastHeight = totalArea.height;
@@ -47,27 +45,12 @@ namespace MMTD_Client.Controls
                 }
 
                 scrollPosition = GUI.BeginScrollView(guiController.ScaledRect(GetRect(), parentSurface), scrollPosition, totalArea);
-
-                //if (start != scrollPosition && autoScroll)
-                //{
-                //    scrollPosition = new Vector2(0, totalArea.height);
-                //}
-
                 foreach (Control control in children)
                 {
                     control.Render();
                 }
-
-                //Debug.Log(totalArea.ToString());
                 GUI.EndScrollView();
             }
         }
-
-        //public void AddControl(Control control)
-        //{
-        //    //controls.Remove(control);
-        //    children.Add(control);
-        //   // return controls.Last();
-        //}
     }
 }
