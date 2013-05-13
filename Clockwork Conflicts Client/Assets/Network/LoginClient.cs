@@ -102,7 +102,7 @@ namespace MMTD_Client.Network
                                 for (int i = 5; i < data.Length; i++)
                                     accountInfo += (Convert.ToChar(data[i]));
 
-                                DomainController.getInstance().ReceiveAccountInfo(accountInfo);
+                                DomainController.getInstance().ReceiveAccountInfo(accountInfo, true);
 
                                 DomainController.getInstance().loggedIn = true;
 

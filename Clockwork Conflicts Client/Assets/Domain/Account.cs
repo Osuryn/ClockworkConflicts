@@ -25,7 +25,7 @@ namespace MMTD_Client.Domain
         public byte guildFlags { get; set; }
         public int partyID { get; set; }
 
-        public Account(int accountId, sbyte flags, string screenName, int guildId)
+        public Account(int accountId, byte flags, string screenName, int guildId)
         {
             this.accountId = accountId;
             

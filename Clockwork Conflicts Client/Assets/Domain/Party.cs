@@ -10,7 +10,7 @@ namespace MMTD_Client.Domain
     //========================================================================
     //- This class holds all information about a party.
     //========================================================================
-    class Party
+    public class Party
     {
         public List<Account> userList { get; set; }
         public int partyId { get; set; }

@@ -34,6 +34,7 @@ namespace MMTD_Client.Domain
 
         public Account myAccount { get; set; }
         public Guild myGuild { get; set; }
+        public Party myParty { get; set; }
         public Server loginServer { get; private set; }
 		
 		public Queue<string> IncommingLobbyMessage{ get; set; }
@@ -59,7 +60,9 @@ namespace MMTD_Client.Domain
 		private bool ClientOn = true;
 
         public int invitedParty { get; set; }
+        public int invitingPlayer { get; set; }
 
+        private bool waitForAccount = false;
 
         private DomainController()
         {
@@ -103,6 +106,12 @@ namespace MMTD_Client.Domain
             {
                 if (account.accountId == id)
                     return account;
+            }
+            AddLobbyMessageToQueue(11, id.ToString());
+            waitForAccount = true;
+            while (!waitForAccount)
+            {
+                Thread.Sleep(50);
             }
             return null;
         }
@@ -184,6 +193,10 @@ namespace MMTD_Client.Domain
 
             switch (type)
             {
+                //Put server message on chat (yellow)
+                case 0:
+                    guiController.AddToChat(data);
+                    break;
                 case 1:
                     AddChatChannel(data);
                     guiController.SetDebugText("Added Channel");
@@ -240,6 +253,11 @@ namespace MMTD_Client.Domain
                     FillPendingList(data);
                     guiController.SetDebugText("Pending friendList");
                     break;
+                //get Account data
+                case 11:
+                    ReceiveAccountInfo(data, false);
+                    waitForAccount = false;
+                    break;
                 case 20:
                     GetChatchannels(data);
                     guiController.SetDebugText("Got all chatchannels");
@@ -256,13 +274,27 @@ namespace MMTD_Client.Domain
                     GetGuildMembers(data);
                     guiController.SetDebugText("Got guildmembers");
                     break;
-                //Receive party invite feedback
+                //party invite sent
                 case 40:
-                    guiController.AddToChat(data);
+                    myAccount.partyID = Convert.ToInt32(data);
+                    myParty = new Party(myAccount, myAccount.partyID);
+                    guiController.AddToChat("Party invite sent.");
                     break;
                 //get party invite
                 case 41:
                     GetPartyInvite(data);
+                    break;
+                //new party member
+                case 42:
+                    guiController.AddToChat(data + " has joined the party!");
+                    break;
+                //your party invitation was declined
+                case 43:
+                    guiController.AddToChat(data + " has rejected your party request.");
+                    break;
+                //get party members
+                case 44:
+                    FormatPartyMembers(data);
                     break;
                 default:
                     //#if DEBUG
@@ -917,21 +949,52 @@ namespace MMTD_Client.Domain
 
         #region Party
 
+        private void FormatPartyMembers(string data)
+        {
+            string[] array;
+            array = data.Split('|');
+
+            myParty.userList.Clear();
+
+            foreach (string account in array)
+            {
+                string[] array2;
+                array2 = account.Split('|');
+                Account toAdd = new Account(Convert.ToInt32(array2[0]), Convert.ToByte(array2[1]), array2[2], Convert.ToInt32(array2[3]));
+                FullyKnownAccounts.Add(toAdd);
+                myParty.adduser(toAdd.accountId);
+            }
+
+        }
+
         private void GetPartyInvite(string data)
         {
             int index = -1;
             index = data.LastIndexOf("|");
             int partyId = Convert.ToInt32(data.Substring(0, index));
-            string inviter = data.Substring(index + 1);
+            index = -1;
+            data = data.Substring(index + 1);
+            index = data.LastIndexOf("|");
+            invitingPlayer = Convert.ToInt32(data.Substring(0, index));
+            string inviterName = data.Substring(index + 1);
+
+            invitingPlayer = 
 
             invitedParty = partyId;
 
-            guiController.ShowQuestionBox(LocalizedStrings.str_partyRequest , "Player " + inviter + " has invited you to join his party.", AcceptPartyInvite, null);
+            guiController.ShowQuestionBox(LocalizedStrings.str_partyRequest , "Player " + inviterName + " has invited you to join his party.", AcceptPartyInvite, DeclinePartyInvite);
         }
 
         public void AcceptPartyInvite()
         {
-            AddLobbyMessageToQueue(42, invitedParty.ToString());
+            AddLobbyMessageToQueue(42, invitingPlayer + "|" + invitedParty);
+            myAccount.partyID = invitedParty;
+            myParty = new Party(myAccount, myAccount.partyID);
+        }
+
+        public void DeclinePartyInvite()
+        {
+            AddLobbyMessageToQueue(43, invitingPlayer + "|" + invitedParty.ToString());
         }
 
         #endregion
@@ -1042,10 +1105,10 @@ namespace MMTD_Client.Domain
             return data;
         }
 
-        public void ReceiveAccountInfo(string accountInfo)
+        public void ReceiveAccountInfo(string accountInfo, bool myAccount)
         {
             int userId;
-            sbyte flags;
+            byte flags;
             int index = -1;
             string screenName;
             int guildId = -1;
@@ -1060,7 +1123,7 @@ namespace MMTD_Client.Domain
             outputbackup = outputbackup.Substring(index + 1);
             index = -1;
             index = outputbackup.IndexOf(",");
-            flags = Convert.ToSByte(Convert.ToInt32(outputbackup.Substring(0, index)));
+            flags = Convert.ToByte(Convert.ToInt32(outputbackup.Substring(0, index)));
 
             outputbackup = outputbackup.Substring(index + 1);
             index = -1;
@@ -1069,8 +1132,17 @@ namespace MMTD_Client.Domain
 
             guildId = Convert.ToInt32(outputbackup.Substring(index + 1));
 
-            this.myAccount = new Account(userId, flags, screenName, guildId);
-            setServerIpAdresses(ipData);
+            Account account = new Account(userId, flags, screenName, guildId);
+
+            if (myAccount)
+            {
+                this.myAccount = account;
+                setServerIpAdresses(ipData);
+            }
+            else
+            {
+                FullyKnownAccounts.Add(account);
+            }
         }
 
         public void setServerIpAdresses(string ipData)

@@ -29,3 +29,4 @@ G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Te
 G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-CSharp.pdb
 G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-UnityScript-firstpass.dll
 G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\obj\Debug\Assembly-CSharp.pdb
+G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb

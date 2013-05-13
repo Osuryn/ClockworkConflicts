@@ -586,6 +586,19 @@ public class ControllerObjectScript : MonoBehaviour
                     GUILayout.Label(channel.channelName + "\t\t\t\t\t Users unknown");
                 }
             }
+            GUILayout.Label("\n\n\n\nParty: ");
+            if (domainController.myParty != null)
+            {
+                GUILayout.Label("id: " + domainController.myParty.partyId);
+                foreach (Account partyMember in domainController.myParty.userList)
+                {
+                    GUILayout.Label(partyMember.screenName);
+                }
+            }
+            else
+            {
+                GUILayout.Label("You are not in a party!");
+            }
         }
         else if (windowID == wnd_Guild.id)
         {
