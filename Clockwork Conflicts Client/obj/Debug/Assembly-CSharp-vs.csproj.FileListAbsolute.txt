@@ -30,3 +30,15 @@ G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Te
 G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-UnityScript-firstpass.dll
 G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\obj\Debug\Assembly-CSharp.pdb
 G:\Development\Git Repositories\ClockworkConflicts\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-CSharp.dll
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-CSharp.pdb
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-UnityScript-firstpass.dll
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\Temp\bin\Debug\UnityEditor.dll
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\Temp\bin\Debug\UnityEngine.dll
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\Temp\bin\Debug\Mono.Cecil.dll
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\Temp\bin\Debug\nunit.framework.dll
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\Temp\bin\Debug\ICSharpCode.NRefactory.dll
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\obj\Debug\Assembly-CSharp-vs.csprojResolveAssemblyReference.cache
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\obj\Debug\Assembly-CSharp.dll
+\\xenon\homes$\243601\Documents\Clockwork Conflicts Client\obj\Debug\Assembly-CSharp.pdb

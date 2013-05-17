@@ -23,7 +23,7 @@ public class ControllerObjectScript : MonoBehaviour
     private bool logginOver = false;
 
     //FPSCounter
-    public float updateInterval = 0.5F;
+    public float fpsUpdateInterval = 0.5F;
     private float accum = 0; // FPS accumulated over the interval
     private int frames = 0; // Frames drawn over the interval
     private float timeleft; // Left time for current interval
@@ -65,7 +65,7 @@ public class ControllerObjectScript : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        timeleft = updateInterval;
+        timeleft = fpsUpdateInterval;
         controls = new List<Control>();
         guiController = GuiController.getInstance();
         guiController.SetControllerObject(this);
@@ -288,7 +288,7 @@ public class ControllerObjectScript : MonoBehaviour
                     lbl_FPSCounter.color = Color.red;
                 else
                     lbl_FPSCounter.color = Color.green;
-            timeleft = updateInterval;
+            timeleft = fpsUpdateInterval;
             accum = 0.0F;
             frames = 0;
         }

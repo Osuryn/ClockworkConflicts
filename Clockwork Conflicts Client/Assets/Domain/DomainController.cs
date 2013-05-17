@@ -36,9 +36,9 @@ namespace MMTD_Client.Domain
         public Guild myGuild { get; set; }
         public Party myParty { get; set; }
         public Server loginServer { get; private set; }
-		
-		public Queue<string> IncommingLobbyMessage{ get; set; }
-		public Queue<string> IncommingChatMessage{ get; set; }
+
+        public Queue<string> IncommingLobbyMessage { get; set; }
+        public Queue<string> IncommingChatMessage { get; set; }
         private List<Message> chatMessageQueue = new List<Message>();
         private List<Message> lobbyMessageQueue = new List<Message>();
         public List<Friend> friendList { get; set; }
@@ -51,13 +51,13 @@ namespace MMTD_Client.Domain
         public int chatHistoryPosition;
 
         public List<ChatChannel> channelList = new List<ChatChannel>();
-		
+
         public Thread LobbyMessageHandler { get; set; }
         public Thread ChatMessageHandler { get; set; }
 
         public bool guildInfoReceived = false;
         public bool loggedIn { get; set; }
-		private bool ClientOn = true;
+        private bool ClientOn = true;
 
         public int invitedParty { get; set; }
         public int invitingPlayer { get; set; }
@@ -69,12 +69,12 @@ namespace MMTD_Client.Domain
             loggedIn = false;
             friendList = new List<Friend>();
             pendingList = new List<Friend>();
-			this.IncommingChatMessage = new Queue<string>();
-			this.IncommingLobbyMessage = new Queue<string>();
+            this.IncommingChatMessage = new Queue<string>();
+            this.IncommingLobbyMessage = new Queue<string>();
             myGuild = null;
             persistenceController = PersistenceController.getInstance();
             channelList.Add(new ChatChannel(true, 0, "Broadcast"));
-			this.startThreads();
+            this.startThreads();
         }
 
         public void SetGuiController()
@@ -262,7 +262,7 @@ namespace MMTD_Client.Domain
                     GetChatchannels(data);
                     guiController.SetDebugText("Got all chatchannels");
                     break;
-                    //join channel and get members
+                //join channel and get members
                 case 21:
                     JoinChannel(data);
                     break;
@@ -682,66 +682,19 @@ namespace MMTD_Client.Domain
 
         private void GetChatchannels(string data)
         {
-            int index = -1;
-            string dataBackup = data;
-            index = data.IndexOf(",");
-            while (index > -1)
-            {
-                try
-                {
-                    string localBackup = dataBackup.Substring(0, index);
-                    index = -1;
-                    index = data.IndexOf("|");
-                    if (index > -1)
-                    {
-                        int channelId = Convert.ToInt32(data.Substring(0, index));
-                        data = data.Substring(index + 1);
-                        index = -1;
-                        index = data.IndexOf("|");
-                        if (index > -1)
-                        {
-                            string channelName = data.Substring(0, index);
-                            int ownerId = Convert.ToInt32(data.Substring(index + 1));
-                            List<int> userList = new List<int>();
-                            userList.Add(ownerId);
-                            channelList.Add(new ChatChannel(false, channelId, channelName, ownerId, userList));
-                            dataBackup = dataBackup.Substring(index + 1);
-                        }
-                        index = -1;
-                        index = dataBackup.IndexOf(",");
-                    }
+            string[] channels = data.Split(',');
 
-                    index = -1;
-                    index = dataBackup.IndexOf(",");
-                }
-                catch
+            try
+            {
+                foreach (string channel in channels)
                 {
-#if DEBUG
-                    guiController.ShowMessageBox("Unexpected error while getting channellist");
-#endif
+                    string[] param = channel.Split('|');
+                    channelList.Add(new ChatChannel(false, Convert.ToInt32(param[0]), param[1], Convert.ToInt32(param[2])));
                 }
             }
-            if (dataBackup.Length != 0)
+            catch
             {
-                string localBackup = dataBackup;
-                index = -1;
-                index = data.IndexOf("|");
-                if (index > -1)
-                {
-                    int channelId = Convert.ToInt32(data.Substring(0, index));
-                    data = data.Substring(index + 1);
-                    index = -1;
-                    index = data.IndexOf("|");
-                    if (index > -1)
-                    {
-                        string channelName = data.Substring(0, index);
-                        int ownerId = Convert.ToInt32(data.Substring(index + 1));
-                        List<int> userList = new List<int>();
-                        userList.Add(ownerId);
-                        channelList.Add(new ChatChannel(false, channelId, channelName, ownerId, userList));
-                        dataBackup = dataBackup.Substring(index + 1);
-                    }
-                }
+                guiController.UnityLog("Unexpected error while getting channellist");
             }
         }
 
@@ -752,7 +705,7 @@ namespace MMTD_Client.Domain
             int channelId = Convert.ToInt32(data.Substring(0, index));
             if (channelId == -1)
             {
-                guiController.AddToChat("Channel " + data.Substring(index+1) + " already exists.");
+                guiController.AddToChat("Channel " + data.Substring(index + 1) + " already exists.");
             }
             else
             {
@@ -802,7 +755,7 @@ namespace MMTD_Client.Domain
 
             if (channel != null)
             {
-                channel.joined= true;
+                channel.joined = true;
                 backup = backup.Substring(0, index + 1);
                 while (index != -1)
                 {
@@ -969,20 +922,22 @@ namespace MMTD_Client.Domain
 
         private void GetPartyInvite(string data)
         {
-            int index = -1;
-            index = data.LastIndexOf("|");
-            int partyId = Convert.ToInt32(data.Substring(0, index));
-            guiController.UnityLog("Step 1: got partyid " + partyId);
-            index = -1;
-            data = data.Substring(index + 1);
-            index = data.LastIndexOf("|");
-            invitingPlayer = Convert.ToInt32(data.Substring(0, index));
-            guiController.UnityLog("Step 2: got inviter ID " + invitingPlayer);
-            string inviterName = data.Substring(index + 1);
-            guiController.UnityLog("Step 3: got inviter name " + inviterName);
-            invitedParty = partyId;
+            string[] array = data.Split('|');
 
-            guiController.ShowQuestionBox(LocalizedStrings.str_partyRequest , "Player " + inviterName + " has invited you to join his party.", AcceptPartyInvite, DeclinePartyInvite);
+            try
+            {
+                int partyId = Convert.ToInt32(array[0]);
+                invitingPlayer = Convert.ToInt32(array[1]);
+                string inviterName = array[2];
+
+                invitedParty = partyId;
+
+                guiController.ShowQuestionBox(LocalizedStrings.str_partyRequest, "Player " + inviterName + " has invited you to join his party.", AcceptPartyInvite, DeclinePartyInvite);
+            }
+            catch
+            {
+                guiController.UnityLog("Something went wrong getting party request.");
+            }
         }
 
         public void AcceptPartyInvite()
@@ -1325,25 +1280,25 @@ namespace MMTD_Client.Domain
             string backup = input;
 
             Queue<string> parameters = new Queue<string>();
-            
+
             do
             {
                 index = backup.LastIndexOf(' ');
                 if (index != -1)
                 {
                     parameters.Enqueue(backup.Substring(0, index));
-                    backup = backup.Substring(index+1);
+                    backup = backup.Substring(index + 1);
                 }
 
             } while (index != -1);
 
             parameters.Enqueue(backup);
 
-           string testParm =  parameters.Dequeue();
+            string testParm = parameters.Dequeue();
 
-           switch (testParm.ToLower())
+            switch (testParm.ToLower())
             {
-               case "help":
+                case "help":
                     guiController.AddToChat("commands: join, createchannel, invite, fps, language");
                     break;
                 case "join":
@@ -1358,22 +1313,21 @@ namespace MMTD_Client.Domain
                         ChatChannel channel = DomainController.getInstance().GetChannelByName(channelname);
                         if (channel != null)
                         {
-                                DomainController.getInstance().AddLobbyMessageToQueue(21, channel.channelId.ToString());//join channel
-                                //DomainController.getInstance().AddLobbyMessageToQueue(23, channel.channelId.ToString());//request channel details
-                                //guiController.activeChannel = channel.channelId;
-                            }
-                            else
-                            {
-
-                                guiController.AddToChat("No channel found with name: " + channelname);
-                            }
+                            DomainController.getInstance().AddLobbyMessageToQueue(21, channel.channelId.ToString());//join channel
+                            //DomainController.getInstance().AddLobbyMessageToQueue(23, channel.channelId.ToString());//request channel details
+                            //guiController.activeChannel = channel.channelId;
                         }
+                        else
+                        {
+                            guiController.AddToChat("No channel found with name: " + channelname);
+                        }
+                    }
                     else
                     {
                         guiController.AddToChat("Invalid join command, usage: /join [channelname]");
                     }
                     break;
-               case "createchannel":
+                case "createchannel":
                     if (parameters.Count == 1)
                     {
                         string channelname2 = parameters.Dequeue();
@@ -1384,7 +1338,7 @@ namespace MMTD_Client.Domain
                         guiController.AddToChat("Invalid createchannel command, usage: /createchannel [channelname]");
                     }
                     break;
-               case "invite":
+                case "invite":
                     if (parameters.Count == 1)
                     {
                         string playerName = parameters.Dequeue();
@@ -1395,7 +1349,7 @@ namespace MMTD_Client.Domain
                         guiController.AddToChat("Invalid invite command, usage: /invite [playername]");
                     }
                     break;
-               case "fps":
+                case "fps":
                     if (guiController.fpsCounter)
                     {
                         guiController.fpsCounter = false;
@@ -1407,7 +1361,7 @@ namespace MMTD_Client.Domain
                         guiController.AddToChat("FPS counter enabled");
                     }
                     break;
-               case "language":
+                case "language":
                     if (parameters.Count == 1)
                     {
                         string language = parameters.Dequeue();
@@ -1452,8 +1406,8 @@ namespace MMTD_Client.Domain
                 ChatMessageHandler.Start();
             }
         }
-		
-		private void ChatMessageHandlerThread()
+
+        private void ChatMessageHandlerThread()
         {
             while (ClientOn)
             {
