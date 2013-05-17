@@ -972,14 +972,14 @@ namespace MMTD_Client.Domain
             int index = -1;
             index = data.LastIndexOf("|");
             int partyId = Convert.ToInt32(data.Substring(0, index));
+            guiController.UnityLog("Step 1: got partyid " + partyId);
             index = -1;
             data = data.Substring(index + 1);
             index = data.LastIndexOf("|");
             invitingPlayer = Convert.ToInt32(data.Substring(0, index));
+            guiController.UnityLog("Step 2: got inviter ID " + invitingPlayer);
             string inviterName = data.Substring(index + 1);
-
-            invitingPlayer = 
-
+            guiController.UnityLog("Step 3: got inviter name " + inviterName);
             invitedParty = partyId;
 
             guiController.ShowQuestionBox(LocalizedStrings.str_partyRequest , "Player " + inviterName + " has invited you to join his party.", AcceptPartyInvite, DeclinePartyInvite);
