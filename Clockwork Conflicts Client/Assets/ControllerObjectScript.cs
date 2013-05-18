@@ -14,6 +14,7 @@ public class ControllerObjectScript : MonoBehaviour
     #region Init
 
     public Texture2D loginBackground;
+    public Texture2D messageIcon;
 
     public GuiController guiController { get; private set; }
     public DomainController domainController { get; private set; }
@@ -59,6 +60,7 @@ public class ControllerObjectScript : MonoBehaviour
     public TextField txf_ChannelName = new TextField("txf_ChannelName");
     private Button btn_CreateChannel = new Button("btn_CreateChannel");
     private Toolbar tlb_Menu = new Toolbar("tlb_Menu");
+    private Button btn_Messages = new Button("btn_Messages");
 
     #endregion
 
@@ -218,6 +220,12 @@ public class ControllerObjectScript : MonoBehaviour
         tlb_Menu.SetRect(new Rect(5, 5, 1915, 30));
         tlb_Menu.visible = false;
 
+        btn_Messages.icon = messageIcon;
+        btn_Messages.location = new Point(1860, 45);
+        btn_Messages.size = new Size(48, 48);
+        btn_Messages.Clicked += new EventHandler(Messages_button_Pressed);
+        btn_Messages.visible = false;
+
         scv_Chat.children.Add(txa_Received);
 
         wnd_Chat.children.Add(tlb_Channels);
@@ -238,6 +246,7 @@ public class ControllerObjectScript : MonoBehaviour
         controls.Add(wnd_Guild);
         controls.Add(wnd_Social);
         controls.Add(wnd_Chat);
+        controls.Add(btn_Messages);
     }
 
     #endregion
@@ -369,15 +378,10 @@ public class ControllerObjectScript : MonoBehaviour
             wnd_Chat.visible = true;
             logginOver = true;
             box_Login.visible = false;
+            btn_Messages.visible = true;
         }
 
-        //tlb_Menu.Render();
-
         wnd_Chat.text = domainController.GetChannelById(guiController.activeChannel).channelName;
-        //wnd_Chat.Render();
-        //wnd_Social.Render();
-        //wnd_Guild.Render();
-        //wnd_CreateChannel.Render();
 
         switch (tlb_Menu.selectedIndex)
         {
@@ -661,6 +665,10 @@ public class ControllerObjectScript : MonoBehaviour
         domainController.AddLobbyMessageToQueue(1, txf_ChannelName.text);
         txf_ChannelName.visible = false;
         txf_ChannelName.text = "";
+    }
+
+    private void Messages_button_Pressed(object Sender, EventArgs e)
+    { 
     }
 
     #endregion

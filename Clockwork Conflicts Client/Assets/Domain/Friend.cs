@@ -21,7 +21,7 @@ namespace MMTD_Client.Domain
         public bool pending { get; set; }
         public BitArray flags { get; private set; }
 
-        public Friend(int friendId, string friendName, bool pending = false, sbyte flags = 0, bool isOnline = false)
+        public Friend(int friendId, byte flags, string friendName, bool pending = false, bool isOnline = false)
         {
             this.friendId = friendId;
             this.friendName = friendName;
@@ -38,7 +38,7 @@ namespace MMTD_Client.Domain
             }
 
             byte[] array = new byte[1];
-            array[0] = Convert.ToByte(flags);
+            array[0] = flags;
             this.flags = new BitArray(array);
         }
 

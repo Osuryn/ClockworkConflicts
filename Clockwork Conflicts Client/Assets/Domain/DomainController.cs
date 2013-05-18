@@ -37,6 +37,7 @@ namespace MMTD_Client.Domain
         public Party myParty { get; set; }
         public Server loginServer { get; private set; }
 
+        public Queue<Notification> notificationQueue { get; set; }
         public Queue<string> IncommingLobbyMessage { get; set; }
         public Queue<string> IncommingChatMessage { get; set; }
         private List<Message> chatMessageQueue = new List<Message>();
@@ -69,6 +70,8 @@ namespace MMTD_Client.Domain
             loggedIn = false;
             friendList = new List<Friend>();
             pendingList = new List<Friend>();
+            FullyKnownAccounts = new List<Account>();
+            onlineIdList = new List<int>();
             this.IncommingChatMessage = new Queue<string>();
             this.IncommingLobbyMessage = new Queue<string>();
             myGuild = null;
@@ -419,155 +422,222 @@ namespace MMTD_Client.Domain
 
         private void FillFriendList(string data)
         {
-            int index = -1;
-            string dataBackup = data;
-            index = data.IndexOf("|");
-            while (index != -1)
+            string[] array = data.Split('|');
+
+            foreach (string friend in array)
             {
                 try
                 {
-                    string localBackup = dataBackup.Substring(0, index);
-
-                    index = data.IndexOf(",");
-                    if (index != -1)
-                    {
-                        int id = Convert.ToInt32(localBackup.Substring(0, index));
-
-                        localBackup = localBackup.Substring(index + 1);
-                        index = localBackup.IndexOf(",");
-                        string name = localBackup.Substring(0, index);
-                        sbyte flags = Convert.ToSByte(Convert.ToInt16(localBackup.Substring(index + 1)));
-                        bool online = IsOnlineFriend(id);
-
-                        index = -1;
-                        index = dataBackup.IndexOf("|");
-                        dataBackup = dataBackup.Substring(index + 1);
-                        try
-                        {
-                            friendList.Add(new Friend(id, name, false, flags, online));
-                            //guiController.SetDebugText("Friend " + name + " added!");
-                        }
-                        catch (Exception ex)
-                        {
-                            guiController.SetDebugText("Problem adding friend " + id + "/" + name + "/" + flags + "/" + online + " to FriendList: " + ex.ToString());
-                        }
-                    }
-
-
-                    index = -1;
-                    index = dataBackup.IndexOf("|");
+                    string[] subarray = friend.Split(',');
+                    int id = Convert.ToInt32(subarray[0]);
+                    byte flags = Convert.ToByte(subarray[1]);
+                    string name = subarray[2];
+                    int guildId = Convert.ToInt32(subarray[3]);
+                    Account acc = new Account(id, flags, name, guildId);
+                    FullyKnownAccounts.Add(acc);
+                    bool online = IsOnlineFriend(id);
+                    friendList.Add(new Friend(id, flags, name, false, online));
                 }
                 catch (Exception e)
                 {
-                    guiController.SetDebugText("General problem adding friend: " + e.ToString());
+                    guiController.UnityLog("something went wrong adding friend: " + friend + " = " + e.ToString());
                 }
             }
 
-            if (dataBackup.Length != 0)
-            {
-                string localBackup = dataBackup;
-                index = -1;
-                index = data.IndexOf(",");
-                if (index > -1)
-                {
-                    int id = Convert.ToInt32(localBackup.Substring(0, index));
+            //int index = -1;
+            //string dataBackup = data;
+            //index = data.IndexOf("|");
+            //while (index != -1)
+            //{
+            //    try
+            //    {
+            //        string localBackup = dataBackup.Substring(0, index);
 
-                    localBackup = localBackup.Substring(index + 1);
-                    index = localBackup.IndexOf(",");
-                    string name = localBackup.Substring(0, index);
-                    sbyte flags = Convert.ToSByte(Convert.ToInt16(localBackup.Substring(index + 1)));
-                    bool online = IsOnlineFriend(id);
+            //        index = data.IndexOf(",");
+            //        if (index != -1)
+            //        {
+            //            int id = Convert.ToInt32(localBackup.Substring(0, index));
 
-                    friendList.Add(new Friend(id, name, false, flags, online));
-                }
-            }
+            //            localBackup = localBackup.Substring(index + 1);
+            //            index = localBackup.IndexOf(",");
+            //            string name = localBackup.Substring(0, index);
+            //            sbyte flags = Convert.ToSByte(Convert.ToInt16(localBackup.Substring(index + 1)));
+            //            bool online = IsOnlineFriend(id);
+
+            //            index = -1;
+            //            index = dataBackup.IndexOf("|");
+            //            dataBackup = dataBackup.Substring(index + 1);
+            //            try
+            //            {
+            //                friendList.Add(new Friend(id, name, false, flags, online));
+            //                //guiController.SetDebugText("Friend " + name + " added!");
+            //            }
+            //            catch (Exception ex)
+            //            {
+            //                guiController.SetDebugText("Problem adding friend " + id + "/" + name + "/" + flags + "/" + online + " to FriendList: " + ex.ToString());
+            //            }
+            //        }
+
+
+            //        index = -1;
+            //        index = dataBackup.IndexOf("|");
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        guiController.SetDebugText("General problem adding friend: " + e.ToString());
+            //    }
+            //}
+
+            //if (dataBackup.Length != 0)
+            //{
+            //    string localBackup = dataBackup;
+            //    index = -1;
+            //    index = data.IndexOf(",");
+            //    if (index > -1)
+            //    {
+            //        int id = Convert.ToInt32(localBackup.Substring(0, index));
+
+            //        localBackup = localBackup.Substring(index + 1);
+            //        index = localBackup.IndexOf(",");
+            //        string name = localBackup.Substring(0, index);
+            //        sbyte flags = Convert.ToSByte(Convert.ToInt16(localBackup.Substring(index + 1)));
+            //        bool online = IsOnlineFriend(id);
+
+            //        friendList.Add(new Friend(id, name, false, flags, online));
+            //    }
+            //}
         }
 
         public void FormatFriendList(string data)
         {
-            //MessageBox.Show("Received friendlist from lobbyserver: " + data);
-            int index = -1;
-            index = data.IndexOf("|");
-            string friendIds = data.Substring(0, index);
-            string onlineIds = data.Substring(index + 1);
-            List<int> friends = getIntListFromData(friendIds);
-            onlineIdList = getIntListFromData(onlineIds);
+            string[] array = data.Split(',');
+            string output = "";
 
-            List<int> removeList = new List<int>();
-            int counter;
-            string output;
-            while (friends.Count > 19)
+            for (int i = 0; i < array.Length; i++)
             {
-                counter = 0;
-                output = "";
-                foreach (int friendId in friends)
+                output += array[i] + ",";
+                if (i % 20 == 0)
                 {
-                    if (counter <= 18)
-                    {
-                        output += friendId + ",";
-                        removeList.Add(friendId);
-                        counter++;
-                    }
-                    else if (counter == 19)
-                    {
-                        output += friendId + "";
-                        removeList.Add(friendId);
-                        counter++;
-                    }
+                    output = output.Substring(0, output.Length - 1);
+                    LobbyMessage message = new LobbyMessage(3, myAccount.accountId, output);
+                    lobbyMessageQueue.Add(message);
+                    output = "";
                 }
+            }
 
-                //SEND MESSAGE
+            if (output != "")
+            {
+                output = output.Substring(0, output.Length - 1);
                 LobbyMessage message = new LobbyMessage(3, myAccount.accountId, output);
                 lobbyMessageQueue.Add(message);
-
-                foreach (int friendId in removeList)
-                {
-                    friends.Remove(friendId);
-                }
             }
-            if (friends.Count != 0)
-            {
-                string output2 = "";
-                foreach (int friendId in friends)
-                {
-                    output2 += friendId + ",";
-                    removeList.Add(friendId);
-                }
-                output2 = output2.Substring(0, output2.Length - 1);
 
-                //send last message
-                LobbyMessage message2 = new LobbyMessage(3, myAccount.accountId, output2);
-                lobbyMessageQueue.Add(message2);
 
-            }
+
+            //MessageBox.Show("Received friendlist from lobbyserver: " + data);
+            //int index = -1;
+            //index = data.IndexOf("|");
+            //string friendIds = data.Substring(0, index);
+            //string onlineIds = data.Substring(index + 1);
+            //List<int> friends = getIntListFromData(friendIds);
+            //onlineIdList = getIntListFromData(onlineIds);
+
+            //List<int> removeList = new List<int>();
+            //int counter;
+            //string output;
+            //while (friends.Count > 19)
+            //{
+            //    counter = 0;
+            //    output = "";
+            //    foreach (int friendId in friends)
+            //    {
+            //        if (counter <= 18)
+            //        {
+            //            output += friendId + ",";
+            //            removeList.Add(friendId);
+            //            counter++;
+            //        }
+            //        else if (counter == 19)
+            //        {
+            //            output += friendId + "";
+            //            removeList.Add(friendId);
+            //            counter++;
+            //        }
+            //    }
+
+            //    //SEND MESSAGE
+            //    LobbyMessage message = new LobbyMessage(3, myAccount.accountId, output);
+            //    lobbyMessageQueue.Add(message);
+
+            //    foreach (int friendId in removeList)
+            //    {
+            //        friends.Remove(friendId);
+            //    }
+            //}
+            //if (friends.Count != 0)
+            //{
+            //    string output2 = "";
+            //    foreach (int friendId in friends)
+            //    {
+            //        output2 += friendId + ",";
+            //        removeList.Add(friendId);
+            //    }
+            //    output2 = output2.Substring(0, output2.Length - 1);
+
+            //    //send last message
+            //    LobbyMessage message2 = new LobbyMessage(3, myAccount.accountId, output2);
+            //    lobbyMessageQueue.Add(message2);
+
+            //}
         }
 
         public void FillPendingList(string data)
         {
+            string[] array = data.Split('|');
+
+            foreach (string friend in array)
+            {
+                try
+                {
+                    string[] subarray = friend.Split(',');
+                    int id = Convert.ToInt32(subarray[0]);
+                    byte flags = Convert.ToByte(subarray[1]);
+                    string name = subarray[2];
+                    int guildId = Convert.ToInt32(subarray[3]);
+                    Account acc = new Account(id, flags, name, guildId);
+                    FullyKnownAccounts.Add(acc);
+                    bool online = IsOnlineFriend(id);
+                    pendingList.Add(new Friend(id, flags, name, true));
+                }
+                catch (Exception e)
+                {
+                    guiController.UnityLog("something went wrong adding  pending friend: " + friend + " = " + e.ToString());
+                }
+            }
             //string manipulation here, data = 1,degor|2,osuryn|...
             //make friends class with new 'pending'-constructor
-            int index;
-            int pendingId;
-            string pendingName;
-            string backup = data;
+            //int index;
+            //int pendingId;
+            //string pendingName;
+            //string backup = data;
 
-            guiController.ClearSocialLists(3);
+            //guiController.ClearSocialLists(3);
 
-            index = data.IndexOf(",");
+            //index = data.IndexOf(",");
 
-            while (index != -1)
-            {
-                pendingId = Convert.ToInt32(data.Substring(0, index));
-                data = data.Substring(index + 1);
+            //while (index != -1)
+            //{
+            //    pendingId = Convert.ToInt32(data.Substring(0, index));
+            //    data = data.Substring(index + 1);
 
-                index = data.IndexOf("|");
-                pendingName = data.Substring(0, index != -1 ? index : data.Length);
-                data = data.Substring(index != -1 ? index + 1 : data.Length);
+            //    index = data.IndexOf("|");
+            //    pendingName = data.Substring(0, index != -1 ? index : data.Length);
+            //    data = data.Substring(index != -1 ? index + 1 : data.Length);
 
-                index = data.IndexOf(",");
+            //    index = data.IndexOf(",");
 
-                pendingList.Add(new Friend(pendingId, pendingName, true));
-            }
+            //    pendingList.Add(new Friend(pendingId, pendingName, true));
+            //}
         }
 
         private void AcceptedPendingFriend(string data)
@@ -1428,7 +1498,14 @@ namespace MMTD_Client.Domain
             {
                 if (IncommingLobbyMessage.Count > 0)
                 {
-                    this.GetMessage("lobbylistener", IncommingLobbyMessage.Dequeue());
+                    try
+                    {
+                        this.GetMessage("lobbylistener", IncommingLobbyMessage.Dequeue());
+                    }
+                    catch (Exception e)
+                    {
+                        guiController.UnityLog("Kept lobbyReceiver from crashing: " + e.ToString());
+                    }
                 }
                 else
                 {
