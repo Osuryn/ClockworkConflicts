@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
@@ -42,8 +43,8 @@ namespace MMTD_Client.Domain
         public Queue<string> IncommingChatMessage { get; set; }
         private List<Message> chatMessageQueue = new List<Message>();
         private List<Message> lobbyMessageQueue = new List<Message>();
-        public List<Friend> friendList { get; set; }
-        public List<Friend> pendingList { get; set; }
+        public List<Account> friendList { get; set; }
+        public List<Account> pendingList { get; set; }
         private List<int> onlineIdList { get; set; }
 
         public List<Account> FullyKnownAccounts { get; set; }
@@ -55,6 +56,7 @@ namespace MMTD_Client.Domain
 
         public Thread LobbyMessageHandler { get; set; }
         public Thread ChatMessageHandler { get; set; }
+        public Thread HomeMessageHandler { get; set; }
 
         public bool guildInfoReceived = false;
         public bool loggedIn { get; set; }
@@ -65,15 +67,20 @@ namespace MMTD_Client.Domain
 
         private bool waitForAccount = false;
 
+        public Queue<string> OutgoingHomeQueue { get; set; }
+        public Queue<string> IncommingHomeQueue { get; set; }
+
         private DomainController()
         {
             loggedIn = false;
-            friendList = new List<Friend>();
-            pendingList = new List<Friend>();
+            friendList = new List<Account>();
+            pendingList = new List<Account>();
             FullyKnownAccounts = new List<Account>();
             onlineIdList = new List<int>();
             this.IncommingChatMessage = new Queue<string>();
             this.IncommingLobbyMessage = new Queue<string>();
+            OutgoingHomeQueue = new Queue<string>();
+            IncommingHomeQueue = new Queue<string>();
             myGuild = null;
             persistenceController = PersistenceController.getInstance();
             channelList.Add(new ChatChannel(true, 0, "Broadcast"));
@@ -388,22 +395,24 @@ namespace MMTD_Client.Domain
 
         private void FriendOnline(int friendId)
         {
-            foreach (Friend friend in friendList)
+            foreach (Account friend in friendList)
             {
-                if (friend.friendId == friendId)
+                if (friend.accountId == friendId)
                 {
                     friend.isOnline = true;
+                    guiController.AddToChat(friend.screenName + " is online");
                 }
             }
         }
 
         private void FriendOffline(int friendId)
         {
-            foreach (Friend friend in friendList)
+            foreach (Account friend in friendList)
             {
-                if (friend.friendId == friendId)
+                if (friend.accountId == friendId)
                 {
                     friend.isOnline = false;
+                    guiController.AddToChat(friend.screenName + " went offline");
                 }
             }
         }
@@ -433,90 +442,29 @@ namespace MMTD_Client.Domain
                     byte flags = Convert.ToByte(subarray[1]);
                     string name = subarray[2];
                     int guildId = Convert.ToInt32(subarray[3]);
-                    Account acc = new Account(id, flags, name, guildId);
+                    Account acc = new Account(id, flags, name, guildId, IsOnlineFriend(id));
                     FullyKnownAccounts.Add(acc);
-                    bool online = IsOnlineFriend(id);
-                    friendList.Add(new Friend(id, flags, name, false, online));
+                    friendList.Add(acc);
                 }
                 catch (Exception e)
                 {
                     guiController.UnityLog("something went wrong adding friend: " + friend + " = " + e.ToString());
                 }
             }
-
-            //int index = -1;
-            //string dataBackup = data;
-            //index = data.IndexOf("|");
-            //while (index != -1)
-            //{
-            //    try
-            //    {
-            //        string localBackup = dataBackup.Substring(0, index);
-
-            //        index = data.IndexOf(",");
-            //        if (index != -1)
-            //        {
-            //            int id = Convert.ToInt32(localBackup.Substring(0, index));
-
-            //            localBackup = localBackup.Substring(index + 1);
-            //            index = localBackup.IndexOf(",");
-            //            string name = localBackup.Substring(0, index);
-            //            sbyte flags = Convert.ToSByte(Convert.ToInt16(localBackup.Substring(index + 1)));
-            //            bool online = IsOnlineFriend(id);
-
-            //            index = -1;
-            //            index = dataBackup.IndexOf("|");
-            //            dataBackup = dataBackup.Substring(index + 1);
-            //            try
-            //            {
-            //                friendList.Add(new Friend(id, name, false, flags, online));
-            //                //guiController.SetDebugText("Friend " + name + " added!");
-            //            }
-            //            catch (Exception ex)
-            //            {
-            //                guiController.SetDebugText("Problem adding friend " + id + "/" + name + "/" + flags + "/" + online + " to FriendList: " + ex.ToString());
-            //            }
-            //        }
-
-
-            //        index = -1;
-            //        index = dataBackup.IndexOf("|");
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        guiController.SetDebugText("General problem adding friend: " + e.ToString());
-            //    }
-            //}
-
-            //if (dataBackup.Length != 0)
-            //{
-            //    string localBackup = dataBackup;
-            //    index = -1;
-            //    index = data.IndexOf(",");
-            //    if (index > -1)
-            //    {
-            //        int id = Convert.ToInt32(localBackup.Substring(0, index));
-
-            //        localBackup = localBackup.Substring(index + 1);
-            //        index = localBackup.IndexOf(",");
-            //        string name = localBackup.Substring(0, index);
-            //        sbyte flags = Convert.ToSByte(Convert.ToInt16(localBackup.Substring(index + 1)));
-            //        bool online = IsOnlineFriend(id);
-
-            //        friendList.Add(new Friend(id, name, false, flags, online));
-            //    }
-            //}
         }
 
         public void FormatFriendList(string data)
         {
-            string[] array = data.Split(',');
+            int index = -1;
+            index = data.IndexOf("|");
+            string[] array = data.Substring(0, index).Split(',');
+            string[] array2 = data.Substring(index + 1).Split(',');
             string output = "";
 
             for (int i = 0; i < array.Length; i++)
             {
                 output += array[i] + ",";
-                if (i % 20 == 0)
+                if (i % 20 == 0 && i != 0)
                 {
                     output = output.Substring(0, output.Length - 1);
                     LobbyMessage message = new LobbyMessage(3, myAccount.accountId, output);
@@ -524,7 +472,6 @@ namespace MMTD_Client.Domain
                     output = "";
                 }
             }
-
             if (output != "")
             {
                 output = output.Substring(0, output.Length - 1);
@@ -532,63 +479,10 @@ namespace MMTD_Client.Domain
                 lobbyMessageQueue.Add(message);
             }
 
-
-
-            //MessageBox.Show("Received friendlist from lobbyserver: " + data);
-            //int index = -1;
-            //index = data.IndexOf("|");
-            //string friendIds = data.Substring(0, index);
-            //string onlineIds = data.Substring(index + 1);
-            //List<int> friends = getIntListFromData(friendIds);
-            //onlineIdList = getIntListFromData(onlineIds);
-
-            //List<int> removeList = new List<int>();
-            //int counter;
-            //string output;
-            //while (friends.Count > 19)
-            //{
-            //    counter = 0;
-            //    output = "";
-            //    foreach (int friendId in friends)
-            //    {
-            //        if (counter <= 18)
-            //        {
-            //            output += friendId + ",";
-            //            removeList.Add(friendId);
-            //            counter++;
-            //        }
-            //        else if (counter == 19)
-            //        {
-            //            output += friendId + "";
-            //            removeList.Add(friendId);
-            //            counter++;
-            //        }
-            //    }
-
-            //    //SEND MESSAGE
-            //    LobbyMessage message = new LobbyMessage(3, myAccount.accountId, output);
-            //    lobbyMessageQueue.Add(message);
-
-            //    foreach (int friendId in removeList)
-            //    {
-            //        friends.Remove(friendId);
-            //    }
-            //}
-            //if (friends.Count != 0)
-            //{
-            //    string output2 = "";
-            //    foreach (int friendId in friends)
-            //    {
-            //        output2 += friendId + ",";
-            //        removeList.Add(friendId);
-            //    }
-            //    output2 = output2.Substring(0, output2.Length - 1);
-
-            //    //send last message
-            //    LobbyMessage message2 = new LobbyMessage(3, myAccount.accountId, output2);
-            //    lobbyMessageQueue.Add(message2);
-
-            //}
+            foreach (string onlineFriend in array2)
+            {
+                onlineIdList.Add(Convert.ToInt32(onlineFriend));
+            }
         }
 
         public void FillPendingList(string data)
@@ -604,40 +498,15 @@ namespace MMTD_Client.Domain
                     byte flags = Convert.ToByte(subarray[1]);
                     string name = subarray[2];
                     int guildId = Convert.ToInt32(subarray[3]);
-                    Account acc = new Account(id, flags, name, guildId);
+                    Account acc = new Account(id, flags, name, guildId, IsOnlineFriend(id));
                     FullyKnownAccounts.Add(acc);
-                    bool online = IsOnlineFriend(id);
-                    pendingList.Add(new Friend(id, flags, name, true));
+                    pendingList.Add(acc);
                 }
                 catch (Exception e)
                 {
                     guiController.UnityLog("something went wrong adding  pending friend: " + friend + " = " + e.ToString());
                 }
             }
-            //string manipulation here, data = 1,degor|2,osuryn|...
-            //make friends class with new 'pending'-constructor
-            //int index;
-            //int pendingId;
-            //string pendingName;
-            //string backup = data;
-
-            //guiController.ClearSocialLists(3);
-
-            //index = data.IndexOf(",");
-
-            //while (index != -1)
-            //{
-            //    pendingId = Convert.ToInt32(data.Substring(0, index));
-            //    data = data.Substring(index + 1);
-
-            //    index = data.IndexOf("|");
-            //    pendingName = data.Substring(0, index != -1 ? index : data.Length);
-            //    data = data.Substring(index != -1 ? index + 1 : data.Length);
-
-            //    index = data.IndexOf(",");
-
-            //    pendingList.Add(new Friend(pendingId, pendingName, true));
-            //}
         }
 
         private void AcceptedPendingFriend(string data)
@@ -649,9 +518,7 @@ namespace MMTD_Client.Domain
 
             if (accepted == 1)
             {
-                Friend friend = pendingList.Find(f => f.friendId == Convert.ToInt32(FriendId));
-                string friendName = friend.friendName;
-                guiController.RemovePendingFriend(friendName);
+                Account friend = pendingList.Find(f => f.accountId == Convert.ToInt32(FriendId));
                 pendingList.Remove(friend);
             }
             else
@@ -669,9 +536,7 @@ namespace MMTD_Client.Domain
 
             if (accepted == 1)
             {
-                Friend friend = pendingList.Find(f => f.friendId == Convert.ToInt32(FriendId));
-                string friendName = friend.friendName;
-                guiController.RemovePendingFriend(friendName);
+                Account friend = pendingList.Find(f => f.accountId == Convert.ToInt32(FriendId));
                 pendingList.Remove(friend);
             }
             else
@@ -689,9 +554,7 @@ namespace MMTD_Client.Domain
 
             if (accepted == 1)
             {
-                Friend friend = friendList.Find(f => f.friendId == Convert.ToInt32(FriendId));
-                string friendName = friend.friendName;
-                guiController.RemoveFriend(friendName);
+                Account friend = friendList.Find(f => f.accountId == Convert.ToInt32(FriendId));
                 friendList.Remove(friend);
             }
             else
@@ -702,19 +565,19 @@ namespace MMTD_Client.Domain
 
         public int getFriendIdByName(string name)
         {
-            foreach (Friend f in pendingList)
+            foreach (Account f in pendingList)
             {
-                if (f.friendName == name)
+                if (f.screenName == name)
                 {
-                    return f.friendId;
+                    return f.accountId;
                 }
             }
 
-            foreach (Friend f in friendList)
+            foreach (Account f in friendList)
             {
-                if (f.friendName == name)
+                if (f.screenName == name)
                 {
-                    return f.friendId;
+                    return f.accountId;
                 }
             }
             return 0;
@@ -1474,6 +1337,12 @@ namespace MMTD_Client.Domain
                 ChatMessageHandler.Name = "Chat Message Handler Thread";
                 ChatMessageHandler.IsBackground = true;
                 ChatMessageHandler.Start();
+
+                //Home messages
+                HomeMessageHandler = new Thread(new ThreadStart(HomeMessageHandlerThread));
+                HomeMessageHandler.Name = "Home Message Handler Thread";
+                HomeMessageHandler.IsBackground = true;
+                HomeMessageHandler.Start();
             }
         }
 
@@ -1514,6 +1383,42 @@ namespace MMTD_Client.Domain
             }
         }
 
+        private void HomeMessageHandlerThread()
+        {
+            while (ClientOn)
+            {
+                if (IncommingHomeQueue.Count > 0)
+                {
+                    try
+                    {
+                        string message = IncommingHomeQueue.Dequeue();
+                        string[] array = message.Split('|');
+                        float id = Convert.ToInt32(array[0]);
+                        float PosX = float.Parse(array[1], CultureInfo.InvariantCulture.NumberFormat);
+                        float PosY = float.Parse(array[2], CultureInfo.InvariantCulture.NumberFormat);
+                        float PosZ = float.Parse(array[3], CultureInfo.InvariantCulture.NumberFormat);
+                        float RotX = float.Parse(array[4], CultureInfo.InvariantCulture.NumberFormat);
+                        float RotY = float.Parse(array[5], CultureInfo.InvariantCulture.NumberFormat);
+                        float RotZ = float.Parse(array[6], CultureInfo.InvariantCulture.NumberFormat);
+                        float RotW = float.Parse(array[7], CultureInfo.InvariantCulture.NumberFormat);
+                    }
+                    catch (Exception e)
+                    {
+                        guiController.UnityLog("Error handling UDP messages: " + e.ToString());
+                    }
+                }
+                else
+                {
+                    Thread.Sleep(50);
+                }
+            }
+        }
+
         #endregion
+
+        public void StartHomeClient()
+        {
+            networkController.StartHomeClient();
+        }
     }
 }

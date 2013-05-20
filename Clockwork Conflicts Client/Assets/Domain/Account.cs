@@ -24,8 +24,9 @@ namespace MMTD_Client.Domain
         public int guildId { get; set; }
         public byte guildFlags { get; set; }
         public int partyID { get; set; }
+        public bool isOnline { get; set; }
 
-        public Account(int accountId, byte flags, string screenName, int guildId)
+        public Account(int accountId, byte flags, string screenName, int guildId, bool isOnline = false)
         {
             this.accountId = accountId;
             
@@ -35,6 +36,7 @@ namespace MMTD_Client.Domain
             
             this.screenName = screenName;
             this.guildId = guildId;
+            this.isOnline = isOnline;
             partyID = -1;
         }
 
@@ -45,6 +47,20 @@ namespace MMTD_Client.Domain
         public void SetGuildFlags(byte flags)
         {
             guildFlags = flags;
+        }
+
+        public string GetOnlineText()
+        {
+            string onlineText = "";
+            if (isOnline)
+            {
+                onlineText = "Online";
+            }
+            else
+            {
+                onlineText = "Offline";
+            }
+            return onlineText;
         }
 
         #endregion

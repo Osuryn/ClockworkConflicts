@@ -21,6 +21,7 @@ namespace MMTD_Client.Network
         private ListenerHandler lobbyReciever;
         private SenderHandler chatSender;
         private SenderHandler lobbySender;
+        private ClientHomeHandler homeHandler;
         private Server Loginserver;
         private Server Chatserver;
         private Server Lobbyserver;
@@ -83,6 +84,11 @@ namespace MMTD_Client.Network
             lobbyReciever = new ListenerHandler("LobbyListener", lobbyServerIpAddress, lobbyPort + 1);
             chatSender = new SenderHandler("ChatSender", chatServerIpAddress, chatPort);
             lobbySender = new SenderHandler("LobbySender", lobbyServerIpAddress, lobbyPort);
+        }
+
+        public void StartHomeClient()
+        {
+            homeHandler = new ClientHomeHandler();
         }
 
         #endregion

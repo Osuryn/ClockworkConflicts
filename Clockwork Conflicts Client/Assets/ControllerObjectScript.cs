@@ -21,6 +21,8 @@ public class ControllerObjectScript : MonoBehaviour
 
     public List<Control> controls { get; set; }
 
+    public GameObject playerchar { get; set; }
+
     private bool logginOver = false;
 
     //FPSCounter
@@ -514,11 +516,18 @@ public class ControllerObjectScript : MonoBehaviour
     {
 
         GUI.DragWindow(guiController.ScaledRect(new Rect(0, 0, 10000, 40), guiController.screenRect));
+
+        #region Console
+
         if (windowID == wnd_Console.id)
         {
-            //txa_Console.text = guiController.debugLog;
             wnd_Console.RenderChildren();
         }
+
+        #endregion
+
+        #region Chat
+
         else if (windowID == wnd_Chat.id)
         {
             tlb_Channels.items.Clear();
@@ -547,36 +556,23 @@ public class ControllerObjectScript : MonoBehaviour
             }
             txa_Received.lines = domainController.GetChannelById(guiController.activeChannel).reveivedText;
             wnd_Chat.RenderChildren();
-
         }
+
+        #endregion
+
+        #region Social
+
         else if (windowID == wnd_Social.id)
         {
-            string status = "";
             GUILayout.Label("Friends: ");
-            foreach (Friend friend in domainController.friendList)
+            foreach (Account friend in domainController.friendList)
             {
-                if (friend.isOnline)
-                {
-                    status = "Online";
-                }
-                else
-                {
-                    status = "Offline";
-                }
-                GUILayout.Label(friend.friendName + "\t\t\t\t\t" + status);
+                GUILayout.Label(friend.screenName + "\t\t\t\t\t" + friend.GetOnlineText());
             }
             GUILayout.Label("\nPending friends: ");
-            foreach (Friend friend in domainController.pendingList)
+            foreach (Account friend in domainController.pendingList)
             {
-                if (friend.isOnline)
-                {
-                    status = "Online";
-                }
-                else
-                {
-                    status = "Offline";
-                }
-                GUILayout.Label(friend.friendName + "\t\t\t\t\t" + status);
+                GUILayout.Label(friend.screenName + "\t\t\t\t\t" + friend.GetOnlineText());
             }
             GUILayout.Label("\n\n\n\nChannels: ");
             foreach (ChatChannel channel in DomainController.getInstance().channelList)
@@ -604,17 +600,32 @@ public class ControllerObjectScript : MonoBehaviour
                 GUILayout.Label("You are not in a party!");
             }
         }
+
+        #endregion
+
+        #region Guild
+
         else if (windowID == wnd_Guild.id)
         {
-            foreach (GuildMember member in domainController.myGuild.userList)
+            if (domainController.myAccount.guildId != -1)
             {
-                GUILayout.Label(member.screenName + "\t\t\t\t\t" + member.guildFlags);
+                foreach (GuildMember member in domainController.myGuild.userList)
+                {
+                    GUILayout.Label(member.screenName + "\t\t\t\t\t" + member.guildFlags);
+                }
             }
         }
+
+        #endregion
+
+        #region create channel
+
         else if (windowID == wnd_CreateChannel.id)
         {
             wnd_CreateChannel.RenderChildren();
         }
+
+        #endregion
     }
 
     public void ShowMessageBox(string name, string text, Action yesAction, Action NoAction)
@@ -625,6 +636,13 @@ public class ControllerObjectScript : MonoBehaviour
         box.yesAction = yesAction;
         box.noAction = NoAction;
         controls.Add(box);
+    }
+
+    public void SetPlayerObject(GameObject player)
+    {
+        playerchar = player;
+        domainController.StartHomeClient();
+        domainController.OutgoingHomeQueue.Enqueue(domainController.myAccount.accountId + "|HOI");
     }
 
     #region Event Handlers

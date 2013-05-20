@@ -118,13 +118,9 @@ namespace MMTD_Client.Network
                                 NetworkController.getInstance().StartConnections();
 
                                 //get Social lists
-                                //GuiController.getInstance().friendsWindow.ClearSocialLists(1); //clear friends
                                 DomainController.getInstance().AddLobbyMessageToQueue(2); //friends
-                                //GuiController.getInstance().friendsWindow.ClearSocialLists(3); //clear pending
                                 DomainController.getInstance().AddLobbyMessageToQueue(10); //pending friends
-
-                                //get channels
-                                DomainController.getInstance().AddLobbyMessageToQueue(20);
+                                DomainController.getInstance().AddLobbyMessageToQueue(20);//get channels
                             }
                             break;
                         case 0:

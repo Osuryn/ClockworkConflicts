@@ -44,6 +44,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\CharacterControl.cs" />
      <Compile Include="Assets\ControllerObjectScript.cs" />
      <Compile Include="Assets\Controls\Box.cs" />
      <Compile Include="Assets\Controls\Button.cs" />
@@ -63,7 +64,6 @@
      <Compile Include="Assets\Domain\ChatChannel.cs" />
      <Compile Include="Assets\Domain\ChatMessage.cs" />
      <Compile Include="Assets\Domain\DomainController.cs" />
-     <Compile Include="Assets\Domain\Friend.cs" />
      <Compile Include="Assets\Domain\Guild.cs" />
      <Compile Include="Assets\Domain\GuildMember.cs" />
      <Compile Include="Assets\Domain\ListenerHandler.cs" />
@@ -75,12 +75,12 @@
      <Compile Include="Assets\Domain\Server.cs" />
      <Compile Include="Assets\Gui\AddUser.cs" />
      <Compile Include="Assets\Gui\ChannelWindow.cs" />
-     <Compile Include="Assets\Gui\ChatWindow.cs" />
      <Compile Include="Assets\Gui\CreateChannel.cs" />
      <Compile Include="Assets\Gui\FriendsWindow.cs" />
      <Compile Include="Assets\Gui\GuiController.cs" />
      <Compile Include="Assets\Gui\GuildWindow.cs" />
      <Compile Include="Assets\Gui\LocalizedStrings.cs" />
+     <Compile Include="Assets\Network\ClientHomeHandler.cs" />
      <Compile Include="Assets\Network\ClientLobbySender.cs" />
      <Compile Include="Assets\Network\ClientState.cs" />
      <Compile Include="Assets\Network\LoginClient.cs" />

@@ -28,12 +28,6 @@ namespace MMTD_Client.Gui
         private DomainController domainController;
         private CreateChannel createChannel;
         private AddUser addUser;
-        //public FriendsWindow friendsWindow;
-        //public ChannelWindow channelWindow;
-        //public ChatWindow broadCastChannel;
-        //public GuildWindow guildWindow;
-        //public ChatWindow guildChatChannel;
-        public List<ChatWindow> channelList = new List<ChatWindow>();
 
         public string debugText { get; private set; }
         public int maxLines = 100;
@@ -118,15 +112,6 @@ namespace MMTD_Client.Gui
         public void UserLoggedIn()
         {
             Application.LoadLevel("LoggedInScene");
-            /*
-            //add extra controls
-            friendsWindow = new FriendsWindow();
-
-            broadCastChannel = new ChatWindow(0, "Broadcast Channel", 0);
-
-            channelWindow = new ChannelWindow();
-
-            guildWindow = new GuildWindow();*/
         }
 
         public void UserLoggedOut()
@@ -153,39 +138,12 @@ namespace MMTD_Client.Gui
 
         }
 
-        public ChatWindow AddChatChannel(int channelId, string channelName, int ownerId)
-        {
-            return null;
-        }
-
-        public void ShowChatWindow(ChatWindow window, bool move)
-        {
-
-        }
-
-        public ChatWindow createConversation(string name)
-        {
-            return null;
-        }
-
         public void AddGuildChat()
         {
         }
 
-        public void RemovePendingFriend(string friendName)
-        {
-        }
-
-        public void RemoveFriend(string friendName)
-        {
-        }
 
         public void AddUser(string addType)
-        {
-
-        }
-
-        public void ClearSocialLists(int choice)
         {
 
         }

@@ -167,16 +167,6 @@ namespace MMTD_Client.Gui
 		 */
         #region Extra Functions
 
-        public void Addfriend(Friend friend)
-        {
-
-        }
-
-        public void AddPending(Friend pending)
-        {
-
-        }
-
         public void ClearSocialLists(int choice)
         {
 
