@@ -86,6 +86,7 @@
      <Compile Include="Assets\Network\LoginClient.cs" />
      <Compile Include="Assets\Network\NetworkController.cs" />
      <Compile Include="Assets\Network\ServerState.cs" />
+     <Compile Include="Assets\OtherPlayerScript.cs" />
      <Compile Include="Assets\Persistence\PersistenceController.cs" />
      <Compile Include="Assets\Persistence\XMLHandler.cs" />
   </ItemGroup>

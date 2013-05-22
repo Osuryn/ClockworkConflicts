@@ -28,6 +28,8 @@ namespace MMTD_Client.Domain
 
         enum MessageType { ServerOnly, Broadcast, Party, Room, Conversation };
 
+        private static ControllerObjectScript controllerObject;
+
         private static DomainController domainController;
         private PersistenceController persistenceController;
         private NetworkController networkController;
@@ -70,8 +72,13 @@ namespace MMTD_Client.Domain
         public Queue<string> OutgoingHomeQueue { get; set; }
         public Queue<string> IncommingHomeQueue { get; set; }
 
+        public Queue<int> usersInHome = new Queue<int>();
+
+        public string[] playerInfo { get; set; }
+
         private DomainController()
         {
+            playerInfo = new string[255];
             loggedIn = false;
             friendList = new List<Account>();
             pendingList = new List<Account>();
@@ -104,6 +111,11 @@ namespace MMTD_Client.Domain
         public void SetNetworkController()
         {
             networkController = NetworkController.getInstance();
+        }
+
+        public void SetControllerObject(ControllerObjectScript controller)
+        {
+            controllerObject = controller;
         }
 
         #endregion
@@ -306,6 +318,10 @@ namespace MMTD_Client.Domain
                 case 44:
                     FormatPartyMembers(data);
                     break;
+                //get all clients in home
+                case 50:
+                    GetAccountsInHome(data);
+                    break;
                 default:
                     //#if DEBUG
                     guiController.ShowMessageBox("Received unknown message type from lobbyserver: " + type);
@@ -401,6 +417,7 @@ namespace MMTD_Client.Domain
                 {
                     friend.isOnline = true;
                     guiController.AddToChat(friend.screenName + " is online");
+                    usersInHome.Enqueue(friendId);
                 }
             }
         }
@@ -458,7 +475,11 @@ namespace MMTD_Client.Domain
             int index = -1;
             index = data.IndexOf("|");
             string[] array = data.Substring(0, index).Split(',');
-            string[] array2 = data.Substring(index + 1).Split(',');
+            string[] array2 = null;
+            if (index != data.Length-1)
+            {
+                array2 = data.Substring(index + 1).Split(',');
+            }
             string output = "";
 
             for (int i = 0; i < array.Length; i++)
@@ -479,9 +500,12 @@ namespace MMTD_Client.Domain
                 lobbyMessageQueue.Add(message);
             }
 
-            foreach (string onlineFriend in array2)
+            if (array2 != null)
             {
-                onlineIdList.Add(Convert.ToInt32(onlineFriend));
+                foreach (string onlineFriend in array2)
+                {
+                    onlineIdList.Add(Convert.ToInt32(onlineFriend));
+                }
             }
         }
 
@@ -1367,13 +1391,14 @@ namespace MMTD_Client.Domain
             {
                 if (IncommingLobbyMessage.Count > 0)
                 {
+                    string message = IncommingLobbyMessage.Dequeue();
                     try
-                    {
-                        this.GetMessage("lobbylistener", IncommingLobbyMessage.Dequeue());
+                    {                     
+                        this.GetMessage("lobbylistener", message);
                     }
                     catch (Exception e)
                     {
-                        guiController.UnityLog("Kept lobbyReceiver from crashing: " + e.ToString());
+                        guiController.UnityLog("Kept lobbyReceiver from crashing, with data: " + message  + " error: " + e.ToString());
                     }
                 }
                 else
@@ -1392,15 +1417,8 @@ namespace MMTD_Client.Domain
                     try
                     {
                         string message = IncommingHomeQueue.Dequeue();
-                        string[] array = message.Split('|');
-                        float id = Convert.ToInt32(array[0]);
-                        float PosX = float.Parse(array[1], CultureInfo.InvariantCulture.NumberFormat);
-                        float PosY = float.Parse(array[2], CultureInfo.InvariantCulture.NumberFormat);
-                        float PosZ = float.Parse(array[3], CultureInfo.InvariantCulture.NumberFormat);
-                        float RotX = float.Parse(array[4], CultureInfo.InvariantCulture.NumberFormat);
-                        float RotY = float.Parse(array[5], CultureInfo.InvariantCulture.NumberFormat);
-                        float RotZ = float.Parse(array[6], CultureInfo.InvariantCulture.NumberFormat);
-                        float RotW = float.Parse(array[7], CultureInfo.InvariantCulture.NumberFormat);
+                        int id = Convert.ToInt32(message.Split('#')[0]);
+                        playerInfo[id] = message.Split('#')[1];
                     }
                     catch (Exception e)
                     {
@@ -1419,6 +1437,18 @@ namespace MMTD_Client.Domain
         public void StartHomeClient()
         {
             networkController.StartHomeClient();
+        }
+
+        public void GetAccountsInHome(string data)
+        {
+            string[] array = data.Split('|');
+            foreach (string id in array)
+            {
+                if (Convert.ToInt32(id) != myAccount.accountId)
+                {
+                    usersInHome.Enqueue(Convert.ToInt32(id));
+                }
+            }
         }
     }
 }

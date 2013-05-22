@@ -121,6 +121,7 @@ namespace MMTD_Client.Network
                                 DomainController.getInstance().AddLobbyMessageToQueue(2); //friends
                                 DomainController.getInstance().AddLobbyMessageToQueue(10); //pending friends
                                 DomainController.getInstance().AddLobbyMessageToQueue(20);//get channels
+                                DomainController.getInstance().AddLobbyMessageToQueue(50);//get users in home
                             }
                             break;
                         case 0:

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEditor;
 
 using System;
 using System.Collections.Generic;
@@ -15,13 +16,17 @@ public class ControllerObjectScript : MonoBehaviour
 
     public Texture2D loginBackground;
     public Texture2D messageIcon;
+    public GameObject otherPlayer;
 
     public GuiController guiController { get; private set; }
     public DomainController domainController { get; private set; }
 
     public List<Control> controls { get; set; }
+    public List<GameObject> otherPlayers { get; set; }
 
     public GameObject playerchar { get; set; }
+
+    public Vector3 serverPlayerPos { get; set; }
 
     private bool logginOver = false;
 
@@ -71,10 +76,12 @@ public class ControllerObjectScript : MonoBehaviour
     {
         timeleft = fpsUpdateInterval;
         controls = new List<Control>();
+        otherPlayers = new List<GameObject>();
         guiController = GuiController.getInstance();
         guiController.SetControllerObject(this);
         domainController = DomainController.getInstance();
         domainController.SetGuiController();
+        domainController.SetControllerObject(this);
         DontDestroyOnLoad(transform.gameObject);
         wnd_Console.visible = false;
         InitGeneralGUI();
@@ -275,7 +282,35 @@ public class ControllerObjectScript : MonoBehaviour
         {
             controls.Remove(messageBox);
         }
+        guiController.UnityLog("Current scene: " + EditorApplication.currentScene);
+        CheckForNewPlayers();
         guiController.Update();
+    }
+
+    public void CheckForNewPlayers()
+    {
+        if (EditorApplication.currentScene == "Assets/Scenes/LoginScene.unity")
+        {
+            while (domainController.usersInHome.Count > 0)
+            {
+                guiController.UnityLog("Added new player");
+                try
+                {
+                    int id = domainController.usersInHome.Dequeue();
+                    guiController.UnityLog("Got player id: " + id);
+                    GameObject newPlayer = (GameObject)Instantiate(otherPlayer);
+                    guiController.UnityLog("Created new player: " + newPlayer.ToString());
+                    OtherPlayerScript script = (OtherPlayerScript)otherPlayer.GetComponent("OtherPlayerScript");
+                    guiController.UnityLog("Got script: " + script.ToString());
+                    script.id = id;
+                    otherPlayers.Add(newPlayer);
+                }
+                catch (Exception e)
+                {
+                    guiController.UnityLog("Error creating player: " + e.ToString());
+                }
+            }
+        }
     }
 
     public void UpdateFPSCounter()
@@ -508,6 +543,9 @@ public class ControllerObjectScript : MonoBehaviour
     {
         if (domainController.loggedIn)
         {
+            domainController.OutgoingHomeQueue.Enqueue(domainController.myAccount.accountId + "|BAI");
+            domainController.OutgoingHomeQueue.Enqueue(domainController.myAccount.accountId + "|BAI");
+            domainController.OutgoingHomeQueue.Enqueue(domainController.myAccount.accountId + "|BAI");
             domainController.SendLogout();
         }
     }
@@ -643,7 +681,39 @@ public class ControllerObjectScript : MonoBehaviour
         playerchar = player;
         domainController.StartHomeClient();
         domainController.OutgoingHomeQueue.Enqueue(domainController.myAccount.accountId + "|HOI");
+        domainController.OutgoingHomeQueue.Enqueue(domainController.myAccount.accountId + "|HOI");
+        domainController.OutgoingHomeQueue.Enqueue(domainController.myAccount.accountId + "|HOI");
     }
+
+    //public void GetServerPlayerInfo(int id, float posX, float posY, float posZ, float rotX, float rotY, float rotZ, float rotW)
+    //{
+
+    //    if (id == domainController.myAccount.accountId)
+    //    {
+    //        //playerchar.transform.position = new Vector3(posX, posY, posZ);
+    //        serverPlayerPos = new Vector3(posX, posY, posZ);
+    //    }
+    //    else
+    //    {
+    //        bool found = false;
+    //        foreach (GameObject otherPlayer in otherPlayers)
+    //        {
+    //            OtherPlayerScript  script = (OtherPlayerScript)otherPlayer.GetComponent("OtherPlayerScript");
+    //            if (script.id == id)
+    //            {
+    //                otherPlayer.transform.position = new Vector3(posX, posY, posZ);
+    //                found = true;
+    //            }
+    //        }
+    //        if (!found)
+    //        {
+    //            GameObject newPlayer = Instantiate(otherPlayer, new Vector3(posX, posY, posZ), new Quaternion()) as GameObject;
+    //            OtherPlayerScript script = (OtherPlayerScript)otherPlayer.GetComponent("OtherPlayerScript");
+    //            script.id = id;
+    //            otherPlayers.Add(newPlayer);
+    //        }
+    //    }
+    //}
 
     #region Event Handlers
 

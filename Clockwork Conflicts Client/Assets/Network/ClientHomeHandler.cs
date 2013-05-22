@@ -49,9 +49,17 @@ namespace MMTD_Client.Network
         {
             while (isActive)
             {
-                receive_byte_array = udpClient.Receive(ref server);
-                received_data = Encoding.ASCII.GetString(receive_byte_array, 0, receive_byte_array.Length);
-                domainController.IncommingHomeQueue.Enqueue(received_data);
+                try
+                {
+                    receive_byte_array = udpClient.Receive(ref server);
+                    received_data = Encoding.ASCII.GetString(receive_byte_array, 0, receive_byte_array.Length);
+                    domainController.IncommingHomeQueue.Enqueue(received_data);
+                    //GuiController.getInstance().UnityLog("received from UDP: " + received_data);
+                }
+                catch (Exception e)
+                {
+                    GuiController.getInstance().UnityLog("UDP receive error:" + e.ToString());
+                }
             }
         }
 
@@ -66,7 +74,7 @@ namespace MMTD_Client.Network
                     {
                         try
                         {
-                            byte[] arrayToSend = GetBytes(dataToSend);
+                            byte[] arrayToSend = Encoding.ASCII.GetBytes(dataToSend);
                             udpClient.Send(arrayToSend, arrayToSend.Length, sendingEndPoint);
                         }
                         catch (Exception e)
@@ -76,13 +84,6 @@ namespace MMTD_Client.Network
                     }
                 }
             }
-        }
-
-        static byte[] GetBytes(string str)
-        {
-            byte[] bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-            return bytes;
         }
     }
 }
