@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 using System;
 using System.Xml;
@@ -82,7 +82,7 @@ namespace MMTD_Client.Persistence
                     index = ownExtIp.LastIndexOf('.');
                     string ownExtIp2 = ownExtIp.Substring(0, index);
 
-                    if (extIP2 != ownExtIp2)
+                    if (extIP != ownExtIp)
                     {
                         Debug.Log("Connecting to: " + extIP);
                         loginserver = new Server(serverPort, "Loginserver", serverStatus, extIP);

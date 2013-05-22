@@ -1173,7 +1173,7 @@ namespace MMTD_Client.Domain
 
             index = -1;
             index = ownExt.LastIndexOf('.');
-            string ownExtIp = ownExt.Substring(0, index);
+            string ownExtIp = ownExt;
 
             IPHostEntry host;
             string ownInt = "";
@@ -1187,7 +1187,7 @@ namespace MMTD_Client.Domain
                 }
             }
 
-            if (!chtExt.Contains(ownExtIp))
+            if (chtExt != ownExt)
             {
                 networkController.chatServerIpAddress = chtExt;
                 Console.Write("the correct IP for Chat would be chtExt: " + chtExt);
@@ -1207,7 +1207,7 @@ namespace MMTD_Client.Domain
 
             }
 
-            if (!lbyExt.Contains(ownExtIp))
+            if (lbyExt != ownInt)
             {
                 networkController.lobbyServerIpAddress = lbyExt;
                 Console.Write("the correct IP for Lobby would be lbyExt: " + lbyExt);
